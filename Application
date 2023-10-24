@@ -1,0 +1,120 @@
+public class Application {
+    public static void main(String[] args) {
+        System.out.println("숫자 야구 게임을 시작합니다.");
+        BaseballGame game = new BaseballGame();
+        game.start();
+    }
+}
+
+
+
+
+
+
+
+
+import camp.nextstep.edu.missionutils.Console;
+import camp.nextstep.edu.missionutils.Randoms;
+import java.util.ArrayList;
+import java.util.List;
+
+public class BaseballGame {
+    private static final int NUMBER_LENGTH = 3;
+    private List<Integer> computerNumbers;
+
+    public BaseballGame() {
+        this.computerNumbers = generateRandomNumbers();
+    }
+
+    public void start() {
+        while (true) {
+            System.out.print("숫자를 입력해주세요 : ");
+            String input = Console.readLine();
+
+            if (!isValid(input)) {
+                System.out.println("잘못된 입력입니다.");
+                continue;
+            }
+
+            List<Integer> userNumbers = convertInputToList(input);
+            Result result = check(userNumbers);
+            System.out.println(result);
+
+            if (result.isGameEnd()) {
+                System.out.println("3개의 숫자를 모두 맞히셨습니다! 게임 종료");
+                break;
+            }
+        }
+    }
+
+    private List<Integer> generateRandomNumbers() {
+        List<Integer> numbers = new ArrayList<>();
+        while (numbers.size() < NUMBER_LENGTH) {
+            int randomNumber = Randoms.pickNumberInRange(1, 9);
+            if (!numbers.contains(randomNumber)) {
+                numbers.add(randomNumber);
+            }
+        }
+        return numbers;
+    }
+
+    private boolean isValid(String input) {
+        if (input.length() != NUMBER_LENGTH) return false;
+        for (char ch : input.toCharArray()) {
+            if (ch < '1' || ch > '9') return false;
+        }
+        return true;
+    }
+
+    private List<Integer> convertInputToList(String input) {
+        List<Integer> numbers = new ArrayList<>();
+        for (char ch : input.toCharArray()) {
+            numbers.add(Character.getNumericValue(ch));
+        }
+        return numbers;
+    }
+
+    private Result check(List<Integer> userNumbers) {
+        int strikes = 0;
+        int balls = 0;
+
+        for (int i = 0; i < NUMBER_LENGTH; i++) {
+            if (computerNumbers.get(i).equals(userNumbers.get(i))) {
+                strikes++;
+            } else if (computerNumbers.contains(userNumbers.get(i))) {
+                balls++;
+            }
+        }
+
+        return new Result(strikes, balls);
+    }
+}
+
+
+
+
+
+
+
+public class Result {
+    private int strikes;
+    private int balls;
+
+    public Result(int strikes, int balls) {
+        this.strikes = strikes;
+        this.balls = balls;
+    }
+
+    @Override
+    public String toString() {
+        if (strikes == 0 && balls == 0) {
+            return "낫싱";
+        }
+        return strikes + "스트라이크 " + balls + "볼";
+    }
+
+    public boolean isGameEnd() {
+        return strikes == 3;
+    }
+}
+
